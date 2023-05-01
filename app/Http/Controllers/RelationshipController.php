@@ -114,4 +114,71 @@ class RelationshipController extends Controller
 
         return DB::table($table->type)->get();
     }
+
+    public function delete(Request $request)
+    {
+        $relationshipType = 'relationship_' . $request->get('type');
+
+        $table = DB::table('relationship_types')->where('type', $relationshipType)->first();
+
+        if (!$table) {
+            throw new Exception('The relationship type does not exist');
+        }
+
+        if (!$table->directed) {
+            $first = $request->get('first_node');
+            $second = $request->get('second_node');
+
+            $firstNodeType = 'node_' . $first['type'];
+            $secondNodeType = 'node_' . $second['type'];
+    
+            $firstNodeTypeExists = DB::table('node_types')->where('type', $firstNodeType)->first();
+            $secondNodeTypeExists = DB::table('node_types')->where('type', $secondNodeType)->first();
+
+            if (!$firstNodeTypeExists || !$secondNodeTypeExists) {
+                throw new Exception('The first or second node type does not exists.');
+            }
+
+            $firstNode = DB::table($firstNodeType)->where('name', $first['name'])->first();
+            $secondNode = DB::table($secondNodeType)->where('name', $second['name'])->first();
+    
+            if (!$firstNode || !$secondNode) {
+                throw new Exception('The source or destination node does not exists.');
+            }
+
+            return DB::table($table->type)
+                            ->where('first_node_id', $firstNode->id)
+                            ->where('first_node_type', $firstNodeTypeExists->type)
+                            ->where('second_node_id', $secondNode->id)
+                            ->where('second_node_type', $secondNodeTypeExists->type)
+                            ->delete();
+        } else {
+            $source = $request->get('source');
+            $destination = $request->get('destination');
+            
+            $sourceType = 'node_' . $source['type'];
+            $destinationType = 'node_' . $destination['type'];
+    
+            $sourceTypeExists = DB::table('node_types')->where('type', $sourceType)->first();
+            $destinationTypeExists = DB::table('node_types')->where('type', $destinationType)->first();
+    
+            if (!$sourceTypeExists || !$destinationTypeExists) {
+                throw new Exception('The source or destination node type does not exists.');
+            }
+    
+            $sourceNode = DB::table($sourceType)->where('name', $source['name'])->first();
+            $destinationNode = DB::table($destinationType)->where('name', $destination['name'])->first();
+    
+            if (!$sourceNode || !$destinationNode) {
+                throw new Exception('The source or destination node does not exists.');
+            }
+
+            return DB::table($table->type)
+                            ->where('source_id', $sourceNode->id)
+                            ->where('source_type', $sourceTypeExists->type)
+                            ->where('destination_id', $destinationNode->id)
+                            ->where('destination_type', $destinationTypeExists->type)
+                            ->delete();
+        }
+    }
 }

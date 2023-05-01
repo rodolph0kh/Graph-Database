@@ -34,3 +34,4 @@ Route::get('/undirected/{relationshipType}', [
 
 Route::post('/relationship', [RelationshipController::class, 'store']);
 Route::get('/relationship/{type}', [RelationshipController::class, 'retreiveRelationshipByType']);
+Route::delete('/relationship', [RelationshipController::class, 'delete']);
