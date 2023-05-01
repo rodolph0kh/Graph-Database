@@ -2,10 +2,10 @@
 
 namespace App\Actions;
 
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Artisan;
 
-class CreateNodeMigrationAction implements ActionInterface
+class CreateUnDirectedRelationshipMigrationAction implements ActionInterface
 {
     public function __construct(protected string $name)
     {  
@@ -14,7 +14,7 @@ class CreateNodeMigrationAction implements ActionInterface
     public function run()
     {
         $tableName = $this->name;
-        $columns = ['name', 'properties'];
+        $columns = ['first_node', 'second_node', 'properties'];
         
         // i called another command to create migration class
         Artisan::call('make:migration', [
@@ -47,8 +47,12 @@ class CreateNodeMigrationAction implements ActionInterface
     {
         $columnsString = '';
         foreach ($columns as $column) {
-            if ($column === 'name') {
-                $columnsString .= "\t\t\t" . '$table->string(\'name\')->unique();' . PHP_EOL;
+            if ($column === 'first_node') {
+                $columnsString .= "\t\t\t" . '$table->unsignedBigInteger(\'first_node_id\');' . PHP_EOL;
+                $columnsString .= "\t\t\t" . '$table->string(\'first_node_type\');' . PHP_EOL;
+            } elseif ($column === 'second_node') {                
+                $columnsString .= "\t\t\t" . '$table->unsignedBigInteger(\'second_node_id\');' . PHP_EOL;
+                $columnsString .= "\t\t\t" . '$table->string(\'second_node_type\');' . PHP_EOL;
             } else {
                 $columnsString .= "\t\t\t" . '$table->string(\'' . $column . '\');' . PHP_EOL;
             }

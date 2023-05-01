@@ -5,7 +5,7 @@ namespace App\Actions;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
 
-class CreateRelationshipMigrationAction
+class CreateDirectedRelationshipMigrationAction implements ActionInterface
 {
     public function __construct(protected string $name)
     {  
@@ -14,7 +14,7 @@ class CreateRelationshipMigrationAction
     public function run()
     {
         $tableName = $this->name;
-        $columns = ['directed', 'source', 'destination', 'properties'];
+        $columns = ['source', 'destination', 'properties'];
         
         // i called another command to create migration class
         Artisan::call('make:migration', [
@@ -47,16 +47,14 @@ class CreateRelationshipMigrationAction
     {
         $columnsString = '';
         foreach ($columns as $column) {
-            if ($column === 'directed') {
-                $columnsString .= '$table->boolean(\'directed\')->default(1);' . PHP_EOL . "\t\t\t";
-            } elseif ($column === 'source') {
-                $columnsString .= '$table->unsignedBigInteger(\'source_id\');' . PHP_EOL . "\t\t\t";
-                $columnsString .= '$table->string(\'source_type\');' . PHP_EOL . "\t\t\t";
+            if ($column === 'source') {
+                $columnsString .= "\t\t\t" . '$table->unsignedBigInteger(\'source_id\');' . PHP_EOL;
+                $columnsString .= "\t\t\t" . '$table->string(\'source_type\');' . PHP_EOL;
             } elseif ($column === 'destination') {                
-                $columnsString .= '$table->unsignedBigInteger(\'destination_id\');' . PHP_EOL . "\t\t\t";
-                $columnsString .= '$table->string(\'destination_type\');' . PHP_EOL . "\t\t\t";
+                $columnsString .= "\t\t\t" . '$table->unsignedBigInteger(\'destination_id\');' . PHP_EOL;
+                $columnsString .= "\t\t\t" . '$table->string(\'destination_type\');' . PHP_EOL;
             } else {
-                $columnsString .= '$table->string(\'' . $column . '\');' . PHP_EOL . "\t\t\t";
+                $columnsString .= "\t\t\t" . '$table->string(\'' . $column . '\');' . PHP_EOL;
             }
         }
         return $columnsString;

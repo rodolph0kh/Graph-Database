@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('relationship_types', function (Blueprint $table) {
+        Schema::create('relationship_follows', function (Blueprint $table) {
             $table->id();
-            $table->string('type');
-            $table->boolean('directed');
+			$table->unsignedBigInteger('source_id');
+			$table->string('source_type');
+			$table->unsignedBigInteger('destination_id');
+			$table->string('destination_type');
+			$table->string('properties');
+
             $table->timestamps();
         });
     }
@@ -24,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('relationship_types');
+        Schema::dropIfExists('relationship_follows');
     }
 };

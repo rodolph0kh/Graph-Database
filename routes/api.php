@@ -24,8 +24,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/node', [NodeController::class, 'store']);
 Route::get('/node/{type}', [NodeController::class, 'retreiveNodesByType']);
 Route::get('/node/{type}/{name}', [NodeController::class, 'retreiveNode']);
-Route::get('/node/{relationshipType}/{name}/{nodeType}/{direction}', [
+Route::get('/node/{name}/{nodeType}/{relationshipType}/directed/{direction}', [
     NodeController::class, 'getNodeRelationshipsByType'
+]);
+Route::get('/undirected/{relationshipType}', [
+    NodeController::class, 'getNodesRealtedByUnDirectedRelationship'
 ]);
 
 Route::post('/relationship', [RelationshipController::class, 'store']);

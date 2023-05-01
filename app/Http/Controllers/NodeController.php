@@ -116,4 +116,37 @@ class NodeController extends Controller
 
         return $nodes;
     }
+
+    public function getNodesRealtedByUnDirectedRelationship(Request $request)
+    {   
+        $table = DB::table('relationship_types')->where('type', 'relationship_' . $request->relationshipType)->first();
+
+        if (!$table) {
+            throw new Exception('The relationship type does not exist');
+        }
+
+        $relationships = DB::table($table->type)->get();
+
+        $nodes = collect();
+
+        foreach($relationships as $relationship) {
+            $relatedNodes = collect();
+
+            $firstNodeId = $relationship->first_node_id;
+            $firstNodeType = $relationship->first_node_type;
+
+            $secondNodeId = $relationship->second_node_id;
+            $secondNodeType = $relationship->second_node_type;
+
+            $firstNode = DB::table($firstNodeType)->where('id', $firstNodeId)->first();
+            $secondNode = DB::table($secondNodeType)->where('id', $secondNodeId)->first();
+
+            $relatedNodes->push($firstNode);
+            $relatedNodes->push($secondNode);
+
+            $nodes->push($relatedNodes);
+        }
+
+        return $nodes;
+    }
 }
