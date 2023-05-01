@@ -31,6 +31,7 @@ Route::put('/node', [NodeController::class, 'updateNode']);
 Route::get('/undirected/{relationshipType}', [
     NodeController::class, 'getNodesRealtedByUnDirectedRelationship'
 ]);
+Route::delete('/node', [NodeController::class, 'delete']);
 
 Route::post('/relationship', [RelationshipController::class, 'store']);
 Route::get('/relationship/{type}', [RelationshipController::class, 'retreiveRelationshipByType']);

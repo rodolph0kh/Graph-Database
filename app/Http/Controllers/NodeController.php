@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\HandleDelteNodeRequest;
 use App\Http\Requests\HandleStoreOrUpdateNodeRequest;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\Relationship;
@@ -170,5 +171,49 @@ class NodeController extends Controller
 
 
         return $updatedNode;
+    }
+
+    // note whenever we delete a node we need to delte all relationships that belongs to this node
+    public function delete(HandleDelteNodeRequest $handleDelteNodeRequest)
+    {
+        $table = DB::table('node_types')->where('type', 'node_' . $handleDelteNodeRequest->get('type'))->first();
+
+        if (!$table) {
+            throw new Exception('The node type does not exist');
+        }
+
+        $node = DB::table($table->type)->where('name', $handleDelteNodeRequest->get('name'))->first();
+
+        if (!$node) {
+            throw new Exception('This node does not exist');
+        }
+
+        // deleting the relationships that belongs to this node
+
+        $relationshipTables = DB::table('relationship_types')->get();
+
+        foreach($relationshipTables as $relationshipTable) {
+            if ($relationshipTable->directed) {
+
+                DB::table($relationshipTable->type)->where('source_id', $node->id)
+                                        ->where('source_type', $table->type)
+                                        ->delete();
+
+                DB::table($relationshipTable->type)->where('destination_id', $node->id)
+                                        ->where('destination_type', $table->type)
+                                        ->delete();
+
+            } else {
+                DB::table($relationshipTable->type)->where('first_node_id', $node->id)
+                                        ->where('first_node_type', $table->type)
+                                        ->delete();
+
+                DB::table($relationshipTable->type)->where('second_node_id', $node->id)
+                                        ->where('second_node_type', $table->type)
+                                        ->delete();
+            }
+        }
+
+        DB::table($table->type)->where('name', $handleDelteNodeRequest->get('name'))->delete();
     }
 }
