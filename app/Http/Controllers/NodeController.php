@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\HandleStoreNodeRequest;
+use App\Http\Requests\HandleStoreOrUpdateNodeRequest;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\Relationship;
 use Illuminate\Http\Request;
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class NodeController extends Controller
 {
-    public function store(HandleStoreNodeRequest $handleStoreNodeRequest)
+    public function store(HandleStoreOrUpdateNodeRequest $handleStoreNodeRequest)
     {
         $nodeType = 'node_' . $handleStoreNodeRequest->get('type');
 
@@ -148,5 +148,27 @@ class NodeController extends Controller
         }
 
         return $nodes;
+    }
+
+    public function updateNode(HandleStoreOrUpdateNodeRequest $handleUpdateNodeRequest)
+    {
+        $table = DB::table('node_types')->where('type', 'node_' . $handleUpdateNodeRequest->get('type'))->first();
+
+        if (!$table) {
+            throw new Exception('The node type does not exist');
+        }
+
+        $node = DB::table($table->type)->where('name', $handleUpdateNodeRequest->get('name'))->first();
+
+        if (!$node) {
+            throw new Exception('This node does not exist');
+        }
+
+        $updatedNode = DB::table($table->type)
+                                ->where('name', $handleUpdateNodeRequest->get('name'))
+                                ->update(['properties' => json_encode($handleUpdateNodeRequest->get('properties'))]);
+
+
+        return $updatedNode;
     }
 }

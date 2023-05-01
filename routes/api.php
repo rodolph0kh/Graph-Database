@@ -27,6 +27,7 @@ Route::get('/node/{type}/{name}', [NodeController::class, 'retreiveNode']);
 Route::get('/node/{name}/{nodeType}/{relationshipType}/directed/{direction}', [
     NodeController::class, 'getNodeRelationshipsByType'
 ]);
+Route::put('/node', [NodeController::class, 'updateNode']);
 Route::get('/undirected/{relationshipType}', [
     NodeController::class, 'getNodesRealtedByUnDirectedRelationship'
 ]);
